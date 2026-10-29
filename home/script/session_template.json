@@ -1,0 +1,29 @@
+{
+  "name": "Default Session",
+  "view": {
+    "id": "linear_view",
+    "type": "LinearGenomeView",
+    "tracks": [
+      {
+        "type": "ReferenceSequenceTrack",
+        "configuration": "Anethum_graveolens-ReferenceSequenceTrack",
+        "displays": [
+          {
+            "type": "LinearReferenceSequenceDisplay",
+            "configuration": "Anethum_graveolens-ReferenceSequenceTrack-LinearReferenceSequenceDisplay"
+          }
+        ]
+      },
+      {
+        "type": "FeatureTrack",
+        "configuration": "Anethum_graveolens.gff",
+        "displays": [
+          {
+            "type": "LinearBasicDisplay",
+            "configuration": "Anethum_graveolens.gff-LinearBasicDisplay"
+          }
+        ]
+      }
+    ]
+  }
+}

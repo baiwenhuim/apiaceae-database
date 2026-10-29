@@ -1,0 +1,248 @@
+{% extends 'basemodel.html' %}
+{% load static %}
+
+{% block title %}
+Apiaceae species gene search
+{% endblock %}
+
+{% block style %}
+<style>
+    .annotation-badge {
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+    }
+    .annotation-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    .scrollable-card-body {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .sequence-body {
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: #212529;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-dna text-primary me-2"></i>{{ gene.gene_id }}</h2>
+            <h5 class="text-muted mb-0">
+                Species: <em>{{ gene.species.name_latin }}</em> ({{ gene.species.name_cn }})
+            </h5>
+        </div>
+        <div>
+            <a href="{{ jbrowse_url }}" target="_blank" class="btn btn-primary shadow-sm">
+                <i class="fas fa-map text-white me-1"></i> View in Genome Browser
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0 bg-light">
+        <div class="card-body">
+            <h5 class="card-title border-bottom pb-2 mb-3 text-secondary">
+                <i class="fas fa-info-circle me-1"></i> Basic Information
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <th class="text-muted" style="width: 40%;">Chromosome:</th>
+                            <td class="fw-bold">{{ gene.chr }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Genomic Location:</th>
+                            <td>{{ gene.start }} – {{ gene.end }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Strand:</th>
+                            <td>
+                                <span class="badge {% if gene.strand == '+' %}bg-success{% else %}bg-danger{% endif %} fs-6">
+                                    {{ gene.strand }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <th class="text-muted" style="width: 40%;">NCBI NR:</th>
+                            <td>{{ gene.nr|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">SwissProt:</th>
+                            <td>
+                                {% if gene.swissprot %}
+                                    <a href="https://www.uniprot.org/uniprotkb/{{ gene.swissprot }}" target="_blank" class="text-decoration-none fw-bold">
+                                        {{ gene.swissprot }} <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                    </a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Clean EC:</th>
+                            <td>{{ gene.clean_ec|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white fw-bold text-success border-0 pt-3">
+                    <i class="fas fa-sitemap me-1"></i> Gene Ontology (GO)
+                </div>
+                <div class="card-body scrollable-card-body bg-white pt-0">
+                    {% if go_terms %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for term in go_terms %}
+                                <a href="http://amigo.geneontology.org/amigo/term/{{ term }}" target="_blank" class="badge bg-light text-dark border annotation-badge px-3 py-2">
+                                    {{ term }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No GO annotation available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white fw-bold text-warning border-0 pt-3">
+                    <i class="fas fa-puzzle-piece me-1"></i> Pfam Domains
+                </div>
+                <div class="card-body scrollable-card-body bg-white pt-0">
+                    {% if pfam_terms %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for term in pfam_terms %}
+                                <a href="https://www.ebi.ac.uk/interpro/entry/pfam/{{ term }}" target="_blank" class="badge bg-light text-dark border annotation-badge px-3 py-2">
+                                    {{ term }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No Pfam annotation available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white fw-bold text-info border-0 pt-3">
+                    <i class="fas fa-flask me-1"></i> EC Numbers
+                </div>
+                <div class="card-body scrollable-card-body bg-white pt-0">
+                    {% if ec_terms %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for term in ec_terms %}
+                                <a href="https://www.kegg.jp/entry/{{ term }}" target="_blank" class="badge bg-light text-dark border annotation-badge px-3 py-2">
+                                    {{ term }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No EC number available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white fw-bold text-danger border-0 pt-3">
+                    <i class="fas fa-project-diagram me-1"></i> KEGG KO
+                </div>
+                <div class="card-body scrollable-card-body bg-white pt-0">
+                    {% if ko_terms %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for term in ko_terms %}
+                                <a href="https://www.genome.jp/entry/{{ term }}" target="_blank" class="badge bg-light text-dark border annotation-badge px-3 py-2">
+                                    {{ term }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No KO annotation available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- CDS with COPY BUTTON IN HEADER -->
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex justify-content-between align-items-center bg-primary bg-opacity-10 fw-bold text-primary border-0 pt-3">
+                    <div><i class="fas fa-dna me-1"></i> CDS Sequence</div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="copySequence('cdsSeq', this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="card-body sequence-body bg-white">
+                    <div id="cdsSeq">
+                        {% if gene.cds %}{{ gene.cds }}{% else %}<p class="text-muted">No CDS sequence available.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROTEIN with COPY BUTTON IN HEADER -->
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex justify-content-between align-items-center bg-success bg-opacity-10 fw-bold text-success border-0 pt-3">
+                    <div><i class="fas fa-protein me-1"></i> Protein Sequence</div>
+                    <button class="btn btn-sm btn-outline-success" onclick="copySequence('proteinSeq', this)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="card-body sequence-body bg-white">
+                    <div id="proteinSeq">
+                        {% if gene.protein %}{{ gene.protein }}{% else %}<p class="text-muted">No protein sequence available.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function copySequence(elemId, btn) {
+    const text = document.getElementById(elemId).innerText.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.remove('btn-outline-primary', 'btn-outline-success');
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('btn-success');
+            if (elemId === 'cdsSeq') btn.classList.add('btn-outline-primary');
+            else btn.classList.add('btn-outline-success');
+        }, 1500);
+    });
+}
+</script>
+{% endblock %}

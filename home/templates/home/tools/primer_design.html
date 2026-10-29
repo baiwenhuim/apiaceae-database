@@ -1,0 +1,168 @@
+{% extends "basemodel.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Primer Design - Apiaceae Database{% endblock %}
+
+{% block content %}
+<style>
+    .primer-title { text-align: center; padding-top: 20px; font-size: 30px; color: #407338; font-weight: bold; }
+    .param-label { color: blue; font-weight: 500; font-size: 0.9rem; }
+    .card-header-custom { background-color: #f8f9fa; border-bottom: 2px solid #407338; color: #407338; }
+    .btn-apiaceae { background-color: #407338; color: white; border: none; }
+    .btn-apiaceae:hover { background-color: #325a2c; color: white; }
+</style>
+
+<div class="container py-4">
+    <h2 class="primer-title mb-4">Primer Design</h2>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                <span class="me-3 fw-bold" style="color: #407338; font-size: 1.2rem;">Base on</span>
+                <div class="btn-group" role="group">
+                    {{ form.search_type }} 
+                    {# Note: Ensure your Django Form widget for search_type uses Bootstrap class 'btn-check' #}
+                </div>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-outline-secondary me-2">HELP</button>
+                    <button type="submit" form="primer-form" class="btn btn-apiaceae px-4">SUBMIT</button>
+                </div>
+            </div>
+
+            <form method="post" id="primer-form">
+                {% csrf_token %}
+
+                <div id="gene-group" class="row g-3 align-items-center mb-4">
+                    <div class="col-auto">
+                        <label class="form-label fw-bold">Gene ID</label>
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.gene_id }}
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="fillExample()">Example: Bra039913</button>
+                    </div>
+                </div>
+
+                <div id="frag-group" class="d-none mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Chromosome</label>
+                            {{ form.chr }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Start Position</label>
+                            {{ form.start }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">End Position</label>
+                            {{ form.end }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <label class="param-label">Primer Num Return</label>
+                        {{ form.primer_num_return }}
+                        <label class="param-label mt-2">Max Diff Tm</label>
+                        {{ form.primer_max_diff_tm }}
+                    </div>
+                    <div class="col">
+                        <label class="param-label">Min Size</label>
+                        {{ form.primer_min_size }}
+                        <label class="param-label mt-2">Max Size</label>
+                        {{ form.primer_max_size }}
+                    </div>
+                    <div class="col">
+                        <label class="param-label">Min Tm</label>
+                        {{ form.primer_tm_min }}
+                        <label class="param-label mt-2">Max Tm</label>
+                        {{ form.primer_tm_max }}
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4 mt-1">
+                    <div class="col">
+                        <label class="param-label">Min GC (%)</label>
+                        {{ form.primer_gc_min }}
+                    </div>
+                    <div class="col">
+                        <label class="param-label">Opt GC (%)</label>
+                        {{ form.primer_gc_opt }}
+                    </div>
+                    <div class="col">
+                        <label class="param-label">Max GC (%)</label>
+                        {{ form.primer_gc_max }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if primers %}
+    <div class="card shadow-sm mt-5">
+        <div class="card-header d-flex justify-content-between align-items-center card-header-custom">
+            <span><i class="bi bi-list-check"></i> Primer Results · {{ task }}</span>
+            <a href="{% url 'primer_export' %}" class="btn btn-sm btn-success">Export Excel</a>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Left Sequence (5'-3')</th>
+                        <th>Right Sequence (5'-3')</th>
+                        <th>Size (bp)</th>
+                        <th>Tm (L/R)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {# Loop through available primers dynamically #}
+                    {% for i in primer_range %}
+                        {% with left_seq="PRIMER_LEFT_"|add:i|add:"_SEQUENCE" %}
+                        {% if primers|get_item:left_seq %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="font-monospace text-primary small">{{ primers|get_item:left_seq }}</td>
+                            <td class="font-monospace text-danger small">{{ primers|get_item:"PRIMER_RIGHT_"|add:i|add:"_SEQUENCE" }}</td>
+                            <td>{{ primers|get_item:"PRIMER_PAIR_"|add:i|add:"_PRODUCT_SIZE" }}</td>
+                            <td>
+                                {{ primers|get_item:"PRIMER_LEFT_"|add:i|add:"_TM"|floatformat:1 }} / 
+                                {{ primers|get_item:"PRIMER_RIGHT_"|add:i|add:"_TM"|floatformat:1 }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Toggle Groups
+    const radios = document.querySelectorAll('input[name="search_type"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('gene-group').classList.toggle('d-none', radio.value !== 'gene');
+            document.getElementById('frag-group').classList.toggle('d-none', radio.value !== 'frag');
+        });
+    });
+
+    // Fill Example Function
+    function fillExample() {
+        const geneInput = document.querySelector('input[name="gene_id"]');
+        if(geneInput) geneInput.value = 'Bra039913';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local configuration and databases
+.env
+.env.*
+local_settings.py
+*.sqlite3
+*.db
+
+# Local datasets and generated analysis files
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.fa
+*.fasta
+*.fna
+*.gz
+*.log
+*.doc
+home/script/*missing_gene_ids.txt
+
+# Generated or bulky static assets
+*.map
+home/static/home/img/
+home/static/home/plugins/
+home/static/home/table/
+home/static/home/js/react-linear-genome-view.umd.development.js
+home/static/template/
+home/templates/home/jbrowse/
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo

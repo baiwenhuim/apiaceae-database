@@ -1,0 +1,291 @@
+{% extends 'basemodel.html' %}
+{% load static django_tables2 django_bootstrap5 %}
+
+{% block title %}Apiaceae Metabolite Relative Abundance{% endblock %}
+
+{% block extra_head %}
+<style>
+    .sidebar-filter {
+        background: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        min-height: calc(100vh - 200px);
+    }
+    .viz-bar {
+        background: #f1f7f3;
+        border-radius: 8px;
+    }
+    /* Set a minimum height for the visualization container */
+    #vizChart {
+        min-height: 400px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <div class="row g-0">
+        <div class="col-lg-3 col-xl-2 sidebar-filter p-3 d-none d-lg-block">
+            <h5 class="mb-3 text-success">Filters</h5>
+            <form method="get" action="">
+                {% bootstrap_form filter.form layout='vertical' %}
+                <button type="submit" class="btn btn-success w-100 mt-3">Apply Filters</button>
+                <a href="{% url 'home:metabolite_expression' %}" class="btn btn-outline-secondary w-100 mt-2">Reset</a>
+            </form>
+        </div>
+
+        <div class="col-lg-9 col-xl-10 px-4">
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Metabolite Relative Abundance Search</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">
+                        Total Metabolite Abundance Entries: <strong>{{ total_count }}</strong>
+                    </p>
+
+                    <div class="viz-bar p-3 mb-3 rounded d-flex gap-3 flex-wrap">
+                        <div class="dropdown">
+                            <button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fa fa-bar-chart"></i> Visualize
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" id="btnBarChart" style="cursor: pointer;">Bar Chart</a></li>
+                                <li><a class="dropdown-item" id="btnHeatmap" style="cursor: pointer;">Heatmap</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary" id="btnExportCSV">
+                            <i class="fa fa-download"></i> Export All Data
+                        </button>
+                        <button class="btn btn-outline-primary" id="btnDownloadSelected">
+                            <i class="fa fa-check-square-o"></i> Download Selection
+                        </button>
+                    </div>
+
+                    <div class="mb-4 border rounded p-2 bg-light d-none" id="vizContainer">
+                        <div id="vizChart"></div>
+                    </div>
+
+                    {% if table.page and table.paginator.num_pages > 1 %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">
+                            Showing page {{ table.page.number }} of {{ table.paginator.num_pages }}
+                        </span>
+                        <nav aria-label="Table navigation top">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if table.page.has_previous %}
+                                <li class="page-item"><a class="page-link text-success" href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">&laquo; Previous</a></li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">&laquo; Previous</span></li>
+                                {% endif %}
+
+                                {% if table.page.has_next %}
+                                <li class="page-item"><a class="page-link text-success" href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">Next &raquo;</a></li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        {% render_table table %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    let selectedIds = [];
+
+    // ==========================================
+    // 1. FILTER TOOLTIPS (Hide bracket text)
+    // ==========================================
+    $('.sidebar-filter label').each(function() {
+        let text = $(this).text();
+        if(text.includes('(')) {
+            let baseText = text.split('(')[0].trim();
+            let tooltipText = text.substring(text.indexOf('(')+1, text.indexOf(')'));
+            // Replace the bracketed text with a hoverable info icon
+            $(this).html(`${baseText} <i class="fa fa-info-circle text-secondary ms-1" style="cursor: help;" title="${tooltipText}"></i>`);
+        }
+    });
+
+    // ==========================================
+    // 2. CHECKBOX LOGIC
+    // ==========================================
+    $('#select-all').on('change', function(e) {
+        const checked = e.target.checked;
+        $('.row-select').each(function() {
+            this.checked = checked;
+            const id = $(this).attr('data-id');
+            if (checked) {
+                if (!selectedIds.includes(id)) selectedIds.push(id);
+            } else {
+                selectedIds = selectedIds.filter(i => i !== id);
+            }
+        });
+    });
+
+    $(document).on('change', '.row-select', function() {
+        const id = $(this).data('id').toString();
+        if ($(this).is(':checked')) {
+            if (!selectedIds.includes(id)) selectedIds.push(id);
+        } else {
+            selectedIds = selectedIds.filter(i => i !== id);
+        }
+        const allChecked = $('.row-select:not(:checked)').length === 0;
+        $('#select-all').prop('checked', allChecked);
+    });
+
+    // ==========================================
+    // 3. SMART EXPORT WARNING
+    // ==========================================
+    $('#btnExportCSV').click(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Create a copy of the URL parameters and remove 'page'
+        // If the only parameter was the page number, it means no filters are applied!
+        const checkFilters = new URLSearchParams(window.location.search);
+        checkFilters.delete('page');
+        
+        if (checkFilters.toString() === "") {
+            // No filters applied - warn the user!
+            const proceed = confirm("You are about to export the ENTIRE dataset. This will take several seconds to compile. Click OK to proceed.");
+            if (!proceed) return; // Cancel if they click cancel
+        }
+        
+        urlParams.set('export', 'csv');
+        window.location.href = window.location.pathname + '?' + urlParams.toString();
+    });
+
+    $('#btnDownloadSelected').click(function() {
+        if (selectedIds.length === 0) { alert('Please select at least one row to download!'); return; }
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('export', 'csv');
+        urlParams.set('ids', selectedIds.join(','));
+        window.location.href = window.location.pathname + '?' + urlParams.toString();
+    });
+
+    // ==========================================
+    // 4. VISUALIZATION (With Shorter Labels)
+    // ==========================================
+    let compoundMap = {}; // Will hold our Short Name -> Full Name mapping
+
+    function getTableData() {
+        const dataPoints = [];
+        let counter = 1;
+        compoundMap = {}; 
+
+        document.querySelectorAll('.table tbody tr').forEach(row => {
+            if(row.cells.length > 4 && row.innerText.trim() !== "No matching expressions found…") {
+                const c_full = row.cells[1].innerText.trim();
+                
+                // If we haven't seen this compound yet, create a short name for it
+                if (!compoundMap[c_full]) {
+                    // Truncate to 12 characters and add "..." and a unique ID (e.g., C1, C2)
+                    const shortName = c_full.length > 12 ? c_full.substring(0, 12) + '...' : c_full;
+                    compoundMap[c_full] = `${shortName} (C${counter++})`;
+                }
+
+                dataPoints.push({
+                    compound: c_full,
+                    short_compound: compoundMap[c_full], // Use the short name for the axes!
+                    species: row.cells[2].innerText.trim(),
+                    tissue: row.cells[3].innerText.trim(),
+                    level: parseFloat(row.cells[4].innerText) || 0
+                });
+            }
+        });
+        return dataPoints;
+    }
+
+    function drawBarChart() {
+        const dataPoints = getTableData();
+        if(dataPoints.length === 0) return alert("No data to visualize.");
+        $('#vizContainer').removeClass('d-none');
+        
+        // X-axis uses the SHORT name, Hover Text uses the FULL name
+        const x_labels = dataPoints.map(dp => `${dp.short_compound} - ${dp.tissue}`);
+        const y_levels = dataPoints.map(dp => dp.level);
+        const hover_texts = dataPoints.map(dp => `<b>${dp.compound}</b><br>Species: ${dp.species}<br>Tissue: ${dp.tissue}`);
+
+        const trace = {
+            x: x_labels,
+            y: y_levels,
+            text: hover_texts,
+            hoverinfo: 'text+y', // Show our custom text + the level value
+            type: 'bar',
+            marker: { color: '#198754' }
+        };
+
+        const layout = {
+            title: 'Expression Levels (Current Page)',
+            xaxis: { tickangle: -45, automargin: true },
+            yaxis: { title: 'Relative Amount' },
+            margin: { b: 100 }
+        };
+
+        Plotly.newPlot('vizChart', [trace], layout);
+    }
+
+    function drawHeatmap() {
+        const dataPoints = getTableData();
+        if(dataPoints.length === 0) return alert("No data to visualize.");
+        $('#vizContainer').removeClass('d-none');
+
+        const tissues = [...new Set(dataPoints.map(dp => dp.tissue))];
+        const full_compounds = [...new Set(dataPoints.map(dp => dp.compound))];
+        
+        // Y-axis uses the SHORT names
+        const y_labels = full_compounds.map(c => compoundMap[c]);
+
+        // Build Z-matrix and Hover text matrix
+        const z_matrix = [];
+        const hover_matrix = [];
+
+        full_compounds.forEach(c => {
+            const z_row = [];
+            const hover_row = [];
+            tissues.forEach(t => {
+                const match = dataPoints.find(dp => dp.compound === c && dp.tissue === t);
+                z_row.push(match ? match.level : null);
+                hover_row.push(`<b>${c}</b><br>Tissue: ${t}`);
+            });
+            z_matrix.push(z_row);
+            hover_matrix.push(hover_row);
+        });
+
+        const trace = {
+            z: z_matrix,
+            x: tissues,
+            y: y_labels,
+            text: hover_matrix,
+            hoverinfo: 'text+z', // Show full name + the color level
+            type: 'heatmap',
+            colorscale: 'Viridis',
+            colorbar: { title: 'Level' }
+        };
+
+        const layout = {
+            title: 'Expression Heatmap (Current Page)',
+            xaxis: { title: 'Tissue' },
+            yaxis: { automargin: true }
+        };
+
+        Plotly.newPlot('vizChart', [trace], layout);
+    }
+
+    $('#btnBarChart').click(drawBarChart);
+    $('#btnHeatmap').click(drawHeatmap);
+});
+</script>
+{% endblock %}

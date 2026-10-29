@@ -1,0 +1,80 @@
+{% extends 'basemodel.html' %}
+{% load static %}
+
+{% block title %}Download Data{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="section-title fw-bold text-primary">
+            <i class="fas fa-cloud-download-alt me-2"></i>Data Download
+        </h2>
+        <p class="text-muted">Download complete genome assemblies, annotations, and sequence data for all available species.</p>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'home:download_all_zip' %}" class="btn btn-dark shadow">
+            <i class="fas fa-file-archive me-2"></i>Download Entire Database (All Species)
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light text-dark" style="border-bottom: 2px solid #dee2e6;">
+                        <tr>
+                            <th scope="col" class="text-center py-3 fw-bold">Organism</th>
+                            <th scope="col" class="text-center py-3 fw-bold">Assembly</th>
+                            <th scope="col" class="text-center py-3 fw-bold">Annotation<br>(Maker)</th>
+                            <th scope="col" class="text-center py-3 fw-bold">Annotation<br>(Helixer)</th>
+                            <th scope="col" class="text-center py-3 fw-bold">CDS</th>
+                            <th scope="col" class="text-center py-3 fw-bold">Protein</th>
+                            <th scope="col" class="text-center py-3 fw-bold">Bundle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in download_data %}
+                        <tr>
+                            <th scope="row" class="text-center ps-4 fs-5"><i>{{ item.name_latin }}</i></th>
+                            
+                            <td class="text-center">
+                                <a href="{% url 'home:download_file' 'assembly' item.name_under %}" class="btn btn-sm btn-outline-primary shadow-sm" title="Download FASTA">
+                                    <i class="fas fa-dna"></i> FASTA
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'home:download_file' 'gff' item.name_under %}" class="btn btn-sm btn-outline-success shadow-sm">
+                                    <i class="fas fa-list-alt"></i> GFF
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'home:download_file' 'gff_helixer' item.name_under %}" class="btn btn-sm btn-outline-info shadow-sm">
+                                    <i class="fas fa-list-alt"></i> GFF3
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'home:download_file' 'cds' item.name_under %}" class="btn btn-sm btn-outline-warning shadow-sm" title="Download CDS">
+                                    <i class="fas fa-file-code"></i> CDS
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'home:download_file' 'pep' item.name_under %}" class="btn btn-sm btn-outline-danger shadow-sm" title="Download PEP">
+                                    <i class="fas fa-file-signature"></i> PEP
+                                </a>
+                            </td>
+                            
+                            <td class="text-center border-start">
+                                <a href="{% url 'home:download_species_zip' item.name_under %}" class="btn btn-sm btn-secondary shadow-sm" title="Download all files for {{ item.name_latin }}">
+                                    <i class="fas fa-box-open"></i> ZIP All
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

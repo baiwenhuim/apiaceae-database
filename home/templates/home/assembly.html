@@ -1,0 +1,39 @@
+{% extends 'basemodel.html' %}
+{% load humanize %}
+{% block title %}Apiaceae species assembly information{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Assembly Information</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Species</th>
+                    <th>Genome Size (bp)</th>
+                    <th>Gene Count</th>
+                    <th>N50 (bp)</th>
+                    <th>BUSCO (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sp in species_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <strong>{{ sp.name_latin }}</strong><br>
+                        <small class="text-muted">{{ sp.name_cn }}</small>
+                    </td>
+                    <td>{{ sp.genome_size_bp|intcomma }}</td>
+                    <td>{{ sp.gene_count|intcomma }}</td>
+                    <td>{{ sp.n50|intcomma }}</td>
+                    <td>{{ sp.busco }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

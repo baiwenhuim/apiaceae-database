@@ -1,0 +1,199 @@
+{% extends 'basemodel.html' %}
+
+{% block title %}GO/KEGG Enrichment Analysis{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12 text-center">
+            <h2><i class="fas fa-network-wired text-primary"></i> Functional Enrichment Analysis</h2>
+            <p class="text-muted">Discover overrepresented GO terms and KEGG pathways in your gene sets.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-cogs"></i> Parameters</h5>
+                </div>
+                <div class="card-body">
+                    {% if form.errors %}
+                        <div class="alert alert-danger p-2">
+                            <ul class="mb-0 list-unstyled">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}<li><i class="fas fa-exclamation-triangle"></i> {{ error }}</li>{% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" id="enrichmentForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.analysis_type.id_for_label }}" class="form-label fw-bold">Database</label>
+                            {{ form.analysis_type }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.species.id_for_label }}" class="form-label fw-bold">Background Species</label>
+                            {{ form.species }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.pvalue_cutoff.id_for_label }}" class="form-label fw-bold">Adjusted P-value Cutoff</label>
+                            {{ form.pvalue_cutoff }}
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label for="{{ form.gene_list.id_for_label }}" class="form-label fw-bold text-primary">
+                                <i class="fas fa-paste"></i> {{ form.gene_list.label }}
+                            </label>
+                            {{ form.gene_list }}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
+                                <i class="fas fa-chart-pie"></i> Run Analysis
+                            </button>
+                            <a href="{% url 'home:enrichment_tool' %}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm" style="min-height: 500px;">
+                <div class="card-body">
+                    <div id="loadingOverlay" class="text-center" style="display: none; padding-top: 150px;">
+                        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h4 class="mt-4 text-primary">Calculating Enrichment...</h4>
+                    </div>
+
+                    <div id="resultsWrapper">
+                        {% if error_msg %}
+                            <div class="alert alert-danger mt-3">
+                                <h5><i class="fas fa-times-circle"></i> Result Notice</h5>
+                                <p class="mb-0">{{ error_msg }}</p>
+                            </div>
+                        {% elif has_run %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="mb-0"><i class="fas fa-list-alt"></i> Enriched Terms</h4>
+                                <div>
+                                    <span class="badge bg-success fs-6 me-3">{{ results|length }} Terms Found</span>
+                                    <button class="btn btn-sm btn-outline-primary" id="btnDownloadCSV">
+                                        <i class="fas fa-download"></i> Download CSV
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {% if results %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Term ID</th>
+                                                <th>Term Name</th>
+                                                <th class="text-nowrap text-center">
+                                                    Adj P-value
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="text-center">Count</th>
+                                                <th>Input Genes in Term</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in results %}
+                                            <tr>
+                                                <td class="fw-bold">{{ row.term_id }}</td>
+                                                <td>{{ row.term_name }}</td>
+                                                <td class="text-center text-danger">{{ row.padj }}</td>
+                                                <td class="text-center">{{ row.gene_count }}</td>
+                                                <td style="font-size: 0.85em;">{{ row.genes }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center text-muted" style="padding-top: 150px;">
+                                <i class="fas fa-project-diagram fa-4x mb-3" style="opacity: 0.2;"></i>
+                                <h4>Ready for Analysis</h4>
+                                <p>Paste a list of Gene IDs on the left to discover functional enrichment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        // UI Loading Spinner
+        $('#enrichmentForm').on('submit', function() {
+            $('#resultsWrapper').fadeOut(200, function() {
+                $('#loadingOverlay').fadeIn(200);
+            });
+            $('#btnSubmit').html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            return true; 
+        });
+
+        // CSV Download Logic
+        $('#btnDownloadCSV').on('click', function(e) {
+            e.preventDefault();
+            let csv = [];
+            let rows = document.querySelectorAll("table tr");
+            for (let i = 0; i < rows.length; i++) {
+                let row = [];
+                let cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) {
+                    let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+                    row.push('"' + text + '"');
+                }
+                csv.push(row.join(","));
+            }
+            let blob = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "enrichment_results.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Table Sorting Logic
+        $(document).on('click', '.sort-icon', function() {
+            let $icon = $(this);
+            let sortDir = $icon.data('dir'); 
+            let $th = $icon.closest('th');
+            let colIndex = $th.index();
+            let $tbody = $th.closest('table').find('tbody');
+            let rows = $tbody.find('tr').toArray();
+
+            $('.sort-icon').css('opacity', '0.3').removeClass('text-primary');
+            $icon.css('opacity', '1.0').addClass('text-primary');
+
+            rows.sort(function(a, b) {
+                let valA = $(a).find('td').eq(colIndex).text().trim();
+                let valB = $(b).find('td').eq(colIndex).text().trim();
+                let numA = parseFloat(valA);
+                let numB = parseFloat(valB);
+
+                if (numA === numB) return 0;
+                if (sortDir === 'asc') return (numA > numB) ? 1 : -1;
+                return (numA < numB) ? 1 : -1;
+            });
+
+            $.each(rows, function(index, row) { $tbody.append(row); });
+        });
+    });
+</script>
+{% endblock %}

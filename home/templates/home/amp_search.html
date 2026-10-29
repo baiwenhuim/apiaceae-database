@@ -1,0 +1,133 @@
+{% extends 'basemodel.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12 text-center">
+            <h2><i class="fas fa-dna text-primary"></i> Antimicrobial Peptides (AMP)</h2>
+            <p class="text-muted">Search and filter predicted antimicrobial peptides from smORFs.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-filter"></i> Search Parameters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="searchForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                {{ form.gene_id.label }}
+                                <i class="fas fa-info-circle text-secondary" data-bs-toggle="tooltip" title="Comma-separated list supported"></i>
+                            </label>
+                            {{ form.gene_id }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.species.label }}</label>
+                            {{ form.species }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Probability Range</label>
+                            <div class="input-group">
+                                {{ form.min_probability }}
+                                <span class="input-group-text">-</span>
+                                {{ form.max_probability }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                            <a href="{% url 'home:antimicrobial_peptide' %}" class="btn btn-outline-secondary"><i class="fas fa-undo"></i> Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="lead mb-0">
+                            Found <strong>{{ display_count }}</strong> records
+                            {% if is_preview %}
+                            <span class="text-warning ms-2 fs-5" data-bs-toggle="tooltip" title="Data Preview: Showing the first 100 rows. Use the filters on the left to search the database.">
+                                <i class="fas fa-info-circle" style="cursor: help;"></i>
+                            </span>
+                            {% endif %}
+                        </p>
+
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary" id="btnExportCSV">
+                                <i class="fas fa-download"></i> Export All
+                            </button>
+                            <button class="btn btn-outline-secondary" id="btnDownloadSelected">
+                                <i class="fas fa-check-square"></i> Download Selected
+                            </button>
+                        </div>
+                    </div>
+                  
+                    <div class="table-responsive">
+                        {% render_table table "django_tables2/bootstrap5.html" %}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });
+
+        // Select All Checkboxes Logic
+        $('#selectAll').click(function() {
+            $('.row-checkbox').prop('checked', this.checked);
+        });
+
+        // Safe Export Logic
+        const hasFilters = "{{ has_filters|yesno:'true,false' }}";
+        
+        $('#btnExportCSV').click(function(e) {
+            e.preventDefault();
+            if (hasFilters === 'false') {
+                if(!confirm("Warning: You are about to export the entire database (~1M+ rows) without any filters applied. This may take a while. Continue?")) {
+                    return;
+                }
+            }
+            // Append export=csv to current URL
+            let currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('export', 'csv');
+            window.location.href = currentUrl.toString();
+        });
+
+        $('#btnDownloadSelected').click(function(e) {
+            e.preventDefault();
+            let selectedIds = [];
+            $('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                alert("Please select at least one row to download.");
+                return;
+            }
+
+            let currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('export', 'csv');
+            currentUrl.searchParams.set('ids', selectedIds.join(','));
+            window.location.href = currentUrl.toString();
+        });
+    });
+</script>
+{% endblock %}

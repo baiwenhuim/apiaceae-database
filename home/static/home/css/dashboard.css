@@ -1,0 +1,370 @@
+/* ############################## */
+/* 完全纯白背景 · 无任何绿色渐变 */
+/* ############################## */
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+    }
+}
+
+p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+.jss269 {
+    text-align: justify;
+    text-indent: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.MuiTypography-body1 {
+    font-size: 1rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.00938em;
+}
+
+.MuiTypography-root {
+    margin: 0;
+}
+
+.b-example-divider {
+    width: 100%;
+    height: 3rem;
+    background-color: rgba(0, 0, 0, .1);
+    border: solid rgba(0, 0, 0, .15);
+    border-width: 1px 0;
+    box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.b-example-vr {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 100vh;
+}
+
+.bi {
+    vertical-align: -.125em;
+    fill: currentColor;
+}
+
+.nav-scroller {
+    position: relative;
+    z-index: 2;
+    height: 2.75rem;
+    overflow-y: hidden;
+}
+
+.nav-scroller .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    padding-bottom: 1rem;
+    margin-top: -1px;
+    overflow-x: auto;
+    text-align: center;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------- */
+/* 核心：主页内容区 强制纯白 */
+/* -------------------------- */
+.cd__main {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    padding: 0;
+}
+
+/* -------------------------- */
+/* 全局强制纯白 · 清除所有绿色 */
+/* -------------------------- */
+html, body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    background-image: none !important;
+}
+
+/* -------------------------- */
+/* Neumorphic 按钮样式 */
+/* -------------------------- */
+@import url('https://pro.fontawesome.com/releases/v6.0.0-beta1/css/all.css');
+
+button.neumorphic {
+    container-type: inline-size;
+    aspect-ratio: 1/1;
+    border: 0.5rem solid transparent;
+    border-radius: 1rem;
+    color: hsl(0 0% 10%);
+    background: none;
+
+    display: grid;
+    place-content: center;
+    gap: 1rem;
+
+    --shadow: 
+      -.5rem -.5rem 1rem hsl(0 0% 100% / .75),
+      .5rem .5rem 1rem hsl(0 0% 50% / .5);
+    box-shadow: var(--shadow);
+    outline: none;
+    transition: all 0.1s;
+    cursor: pointer;
+}
+
+button.neumorphic:hover, button.neumorphic:focus-visible {
+    color: hsl(10 80% 50%);
+    scale: 1.1
+}
+
+button.neumorphic:active, button.neumorphic.active {
+    box-shadow:
+      var(--shadow),
+      inset .5rem .5rem 1rem hsl(0 0% 50% / .5),
+      inset -.5rem -.5rem 1rem hsl(0 0% 100% / .75);
+    color: hsl(10 80% 50%);
+}
+
+button.neumorphic > i {
+    font-size: 31cqi;
+}
+
+button.neumorphic > span {
+    font-family: system-ui, sans-serif;
+    font-size: 16cqi;
+}
+
+.buttons {
+    display: grid;
+    width: min(75rem, 100%);
+    margin-inline: auto;
+    grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
+    gap: 2rem;
+}
+
+/* -------------------------- */
+/* 标题 & 统计卡片 */
+/* -------------------------- */
+.section-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+    border: none;
+    background: #ffffff;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+}
+
+.stat-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* -------------------------- */
+/* 页脚 */
+/* -------------------------- */
+footer {
+    background: #ffffff !important;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+/* 数据统计模块适配 */
+.py-10 {
+    padding-top: 6rem !important;
+    padding-bottom: 6rem !important;
+}
+.my-8 {
+    margin-top: 5rem !important;
+    margin-bottom: 5rem !important;
+}
+.mb-8 {
+    margin-bottom: 5rem !important;
+}
+.mb-6 {
+    margin-bottom: 3.5rem !important;
+}
+.g-6 {
+    gap: 3rem !important;
+}
+
+/* 响应式适配（手机端缩小数字） */
+@media (max-width: 768px) {
+    .stat-value {
+        font-size: 3rem !important;
+    }
+    .stat-label {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* 分析工具模块：一行4个 + 长窄卡片 */
+.tool-card {
+    height: 320px !important; /* 固定高度 → 变长（核心：长窄型） */
+}
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+}
+.p-5 {
+    padding: 2rem 1.5rem !important; /* 上下内边距大、左右小 → 长窄感 */
+}
+.bg-light-subtle {
+    background-color: #f9fafb !important;
+}
+.rounded-4 {
+    border-radius: 16px !important;
+}
+
+/* 响应式适配（大屏一行4个，平板一行2个，手机一行1个） */
+@media (max-width: 992px) {
+    .tool-card {
+        height: auto !important; /* 平板/手机自动高度 */
+    }
+}
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start !important;
+    }
+    .section-title {
+        font-size: 2rem !important;
+    }
+}
+
+/* News & Updates 样式 */
+/* News Section Nodes */
+.node-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #D1FAE5; /* Light green background */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #F3F4F6; /* Matches section bg to create separation */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.timeline-node {
+    z-index: 5;
+}
+
+/* Button Hover effect */
+.btn-white:hover {
+    background-color: #00A669 !important;
+    color: white !important;
+}
+
+/* Typography adjustments */
+.update-item h4 {
+    font-size: 1.25rem;
+    margin-top: 10px;
+}
+.my-10 {
+    margin-top: 6rem !important;
+    margin-bottom: 6rem !important;
+}
+.py-8 {
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+}
+.p-8 {
+    padding: 4rem !important;
+}
+.rounded-pill {
+    border-radius: 50rem !important;
+}
+.update-item:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .p-8 {
+        padding: 2rem !important;
+    }
+    .update-title {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Footer Styling */
+.footer-section {
+    background-color: #ffffff;
+    color: #333;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #009966; /* Match your brand green */
+}
+
+.footer-bottom a:hover {
+    color: #000 !important;
+}
+
+.brand-text h5 {
+    font-size: 1.1rem;
+    line-height: 1.1;
+    color: #000;
+}
+
+.footer-section hr {
+    border-top: 1px solid #eee;
+}

@@ -1,0 +1,53 @@
+{% extends 'basemodel.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-copy me-2"></i>Step 2: Copy and Run Search</h4>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Your FASTA sequence is ready. Click the button below to copy it, then open the EBI HMMER tool to paste it.</p>
+            
+            <div class="mb-4">
+                <label class="fw-bold mb-2">FASTA Sequence:</label>
+                <textarea id="fastaSeq" class="form-control bg-light font-monospace" rows="10" readonly>{{ sequence }}</textarea>
+            </div>
+
+            <!-- Updated Button Group with RESET button -->
+            <div class="d-flex gap-3 flex-wrap">
+                <button class="btn btn-success px-4" onclick="copySequence()">
+                    <i class="fas fa-clipboard me-2"></i>Copy Sequence
+                </button>
+
+                <a href="https://www.ebi.ac.uk/Tools/hmmer/search/hmmscan" target="_blank" class="btn btn-outline-primary px-4">
+                    Go to EBI HMMER <i class="fas fa-external-link-alt ms-2"></i>
+                </a>
+
+                <!-- NEW: Reset / Back Button -->
+                <a href="{% url 'home:hmmer_redirect' %}" class="btn btn-outline-danger px-4">
+                    <i class="fas fa-redo me-2"></i>Reset & Start Over
+                </a>
+            </div>
+            
+            <div id="copyFeedback" class="mt-2 text-success fw-bold" style="display:none;">
+                <i class="fas fa-check"></i> Sequence copied to clipboard!
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copySequence() {
+    var copyText = document.getElementById("fastaSeq");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(copyText.value);
+    
+    // Show feedback
+    var feedback = document.getElementById("copyFeedback");
+    feedback.style.display = "block";
+    setTimeout(function() { feedback.style.display = "none"; }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+
+:root {
+    /* 全局统一绿色主题 */
+    --theme-green: #198754;
+    --theme-green-dark: #146c43;
+    --theme-dark: #212529;
+    --theme-light: #f8f9fa;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(to right, #e8f4ea, #ffffff);
+    background-attachment: fixed;
+}
+
+article {
+    padding: 5em;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    background: white;
+    background-color: var(--bg-color, #fff);
+    color: var(--color, #000);
+    transition: 250ms;
+}
+
+/* 统一卡片样式 */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: none;
+    overflow: hidden;
+}
+.card-header {
+    background-color: var(--theme-green) !important;
+    color: white !important;
+    font-weight: 500;
+}
+
+/* 统一按钮 */
+.btn-primary {
+    background-color: var(--theme-green);
+    border-color: var(--theme-green);
+}
+.btn-primary:hover {
+    background-color: var(--theme-green-dark);
+    border-color: var(--theme-green-dark);
+}
+
+/* 表格全局样式 */
+.table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.table th {
+    background-color: #f1f7f3;
+    border-bottom: 2px solid var(--theme-green);
+}
+
+/* 筛选面板样式 */
+.sidebar-filter {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+.viz-bar {
+    background: #e9ecef;
+    border-radius: 8px;
+}
+
+/* 勾选框样式（用于 Download selection） */
+.form-check-input:checked {
+    background-color: var(--theme-green);
+    border-color: var(--theme-green);
+}
+
+/* 原样式保留 */
+#switcher {
+    position: absolute;
+    -webkit-appearance: none;
+        -moz-appearance: none;
+            appearance: none;
+    top: 1rem;
+    right: 1rem;
+    width: 4em;
+    height: 2em;
+    background-color: var(--color, #000);
+    border-radius: 2em;
+    font-size: 20px;
+}
+#switcher::after {
+    position: absolute;
+    top: 0.25em;
+    left: 0.25em;
+    width: 1.5em;
+    height: 1.5em;
+    content: "";
+    background-color: var(--bg-color, #fff);
+    border-radius: 2em;
+    transform: translateX(var(--translate, 0));
+    transition: 250ms;
+}
+#switcher:checked {
+    --translate: 2em;
+    --bg-color: #424242;
+    --color: #81faaf;
+}
+#switcher:checked ~ * {
+    --bg-color: #424242;
+    --color: #81faaf;
+}
+
+.form-control-dark {
+    border-color: var(--bs-gray);
+}
+.form-control-dark:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+}
+.text-small { font-size: 85%; }
+.dropdown-toggle:not(:focus) { outline: 0; }
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg { font-size: 3.5rem; }
+}
+
+.nav-scroller {
+    position: relative;
+    z-index: 2;
+    height: 2.75rem;
+    overflow-y: hidden;
+}
+.nav-scroller .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    padding-bottom: 1rem;
+    margin-top: -1px;
+    overflow-x: auto;
+    text-align: center;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+
+.menu-scroll {
+    overflow-y: scroll;
+    max-height: 200px;
+}
+/* Back to top button styles */
+#backToTopBtn {
+    display: none; /* Hidden by default */
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    z-index: 999;
+    border: none;
+    outline: none;
+    background-color: var(--theme-green);
+    color: white;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 22px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+#backToTopBtn:hover {
+    background-color: var(--theme-green-dark);
+    transform: scale(1.1);
+}

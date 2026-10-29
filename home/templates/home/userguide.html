@@ -1,0 +1,72 @@
+{% extends 'basemodel.html' %}
+
+{% block title %}User Guide | Apiaceae Database{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5 px-4">
+    <div class="row">
+        <aside class="col-lg-3 d-none d-lg-block">
+            <div class="sticky-top" style="top: 20px; z-index: 100;">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title text-success fw-bold">On This Page</h5>
+                        <hr>
+                        <div id="sidebar-toc" class="toc-container">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5 markdown-body">
+                    {{ html_content|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling for the Main Content */
+    .markdown-body h1 { color: #198754; font-weight: bold; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; margin-bottom: 20px;}
+    .markdown-body h2 { color: #212529; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #eee; }
+    .markdown-body p { font-size: 1.1rem; line-height: 1.7; color: #495057; }
+    
+    /* Formatting the Auto-Generated TOC */
+    .toc { 
+        list-style: none; 
+        padding-left: 0; 
+    }
+    .toc ul { 
+        list-style: none; 
+        padding-left: 1.2rem; 
+        font-size: 0.9rem;
+    }
+    .toc a { 
+        text-decoration: none; 
+        color: #6c757d; 
+        display: block;
+        padding: 4px 0;
+    }
+    .toc a:hover { color: #198754; }
+
+    /* Tables & Code */
+    .markdown-body table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; }
+    .markdown-body th, .markdown-body td { border: 1px solid #dee2e6; padding: 0.75rem; }
+    .markdown-body th { background-color: #f8f9fa; }
+</style>
+
+<script>
+    // Since Markdown 'toc' extension places the TOC inside the html_content,
+    // we use JS to move it to our sidebar container for a better layout.
+    document.addEventListener("DOMContentLoaded", function() {
+        const tocElement = document.querySelector('.markdown-body .toc');
+        const sidebarContainer = document.getElementById('sidebar-toc');
+        if (tocElement && sidebarContainer) {
+            sidebarContainer.appendChild(tocElement);
+        }
+    });
+</script>
+{% endblock %}

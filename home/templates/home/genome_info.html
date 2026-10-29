@@ -1,0 +1,147 @@
+{% extends 'basemodel.html' %}
+
+{% block title %}
+Apiaceae species assembly information
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mt-4">
+    <p> Genome Information</p>
+</div>
+
+<main class="jss774">
+    <!-- copy from https://ngdc.cncb.ac.cn/tcod/eachgenome/?genomeid=16 -->
+    <div id="summary" class="collapse show" style="margin-left: 30px">
+        <div class="row">
+            <div class="col-md-6 ">
+                <p><b>Organism name:</b>&nbsp;&nbsp;&nbsp;Areca catechu</p>
+                <p><b>Cultivar:</b>&nbsp;&nbsp;&nbsp;Reyan#1</p>
+                <p><b>Bioproject:</b>&nbsp;&nbsp;&nbsp;CNP0000517</p>
+                <p><b>Submitter:</b>&nbsp;&nbsp;&nbsp;Coconut Research Institute</p>
+                <p><b>Year:</b>&nbsp;&nbsp;&nbsp;2021</p>
+                <p><b>Assembly level:</b>&nbsp;&nbsp;&nbsp;Chromosome</p>
+            </div>
+
+            <div class="col-md-6 ">
+                <p><b>Sequencing technology</b>&nbsp;&nbsp;&nbsp;Illumina; PacBio; Hi-C</p>
+                <p><b>Genome coverage</b>&nbsp;&nbsp;&nbsp;240×</p>
+                <p><b>Total sequence length:</b>&nbsp;&nbsp;&nbsp;2,513,067,666&nbsp;bp</p>
+                <p><b>chromosomes and scaffolds:</b>&nbsp;&nbsp;&nbsp;16 chromosomes and 4307 scaffolds </p>
+                <p><b>Scaffold N50:</b>&nbsp;&nbsp;&nbsp;171,974,900&nbsp;bp</p>
+                <p><b>median GC content(%):</b>&nbsp;&nbsp;&nbsp;41.14</p>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <!-- copy from http://magen.whu.edu.cn/magendb/genome/theCac -->
+    <div
+        class="MuiPaper-root MuiPaper-elevation1 MuiExpansionPanel-root Mui-expanded MuiExpansionPanel-rounded MuiPaper-rounded">
+        <div class="MuiButtonBase-root MuiExpansionPanelSummary-root Mui-expanded" tabindex="0" role="button"
+            aria-disabled="false" aria-expanded="true">
+            <div class="MuiExpansionPanelSummary-content Mui-expanded">
+                <p class="MuiTypography-root jss1788 MuiTypography-body1">Description</p>
+            </div>
+            <div class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded MuiIconButton-edgeEnd"
+                tabindex="-1" role="button" aria-disabled="false" aria-hidden="true"><span
+                    class="MuiIconButton-label"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24"
+                        aria-hidden="true" role="presentation">
+                        <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
+                    </svg></span><span class="MuiTouchRipple-root"></span></div>
+        </div>
+        <div class="MuiCollapse-container MuiCollapse-entered" style="min-height: 0px;">
+            <div class="MuiCollapse-wrapper">
+                <div class="MuiCollapse-wrapperInner">
+                    <div role="region">
+                        <div class="MuiExpansionPanelDetails-root jss1789">
+                            <div style="white-space: pre-wrap;">Theobroma cacao (Malvaceae), an economically important
+                                tropical-fruit tree crop that is the source of chocolate. It is a diploid tree fruit
+                                species endemic to the South American rainforests. Cocoa was domesticated approximately
+                                3,000 years ago in Central America. The Criollo cocoa variety, having a nearly unique
+                                and homozygous genotype, was among the first to be cultivated. Criollo is now one of the
+                                two cocoa varieties providing fine flavor chocolate.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
+        class="MuiPaper-root MuiPaper-elevation1 MuiExpansionPanel-root Mui-expanded MuiExpansionPanel-rounded MuiPaper-rounded">
+        <div class="MuiButtonBase-root MuiExpansionPanelSummary-root Mui-expanded" tabindex="0" role="button"
+            aria-disabled="false" aria-expanded="true">
+            <div class="MuiExpansionPanelSummary-content Mui-expanded">
+                <p class="MuiTypography-root jss1788 MuiTypography-body1">Genomes</p>
+            </div>
+            <div class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded MuiIconButton-edgeEnd"
+                tabindex="-1" role="button" aria-disabled="false" aria-hidden="true"><span
+                    class="MuiIconButton-label"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24"
+                        aria-hidden="true" role="presentation">
+                        <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
+                    </svg></span><span class="MuiTouchRipple-root"></span></div>
+        </div>
+        <div class="MuiCollapse-container MuiCollapse-entered" style="min-height: 0px;">
+            <div class="MuiCollapse-wrapper">
+                <div class="MuiCollapse-wrapperInner">
+                    <div role="region">
+                        <div class="MuiExpansionPanelDetails-root jss1789">
+                            <div class="">
+                                <table class="MuiTable-root">
+                                    <thead class="MuiTableHead-root" style="width: 100%;">
+                                        <tr class="MuiTableRow-root jss1809 MuiTableRow-head">
+                                            <th class="MuiTableCell-root MuiTableCell-head jss1824 jss1899" scope="col">
+                                                <div aria-haspopup="true">Name</div>
+                                            </th>
+                                            <th class="MuiTableCell-root MuiTableCell-head jss1824 jss1900" scope="col">
+                                                <div aria-haspopup="true">Source</div>
+                                            </th>
+                                            <th class="MuiTableCell-root MuiTableCell-head jss1824 jss1901" scope="col">
+                                                <div aria-haspopup="true">Pub. Date</div>
+                                            </th>
+                                            <th class="MuiTableCell-root MuiTableCell-head jss1824 jss1902" scope="col">
+                                                <div aria-haspopup="true">Contig N50</div>
+                                            </th>
+                                            <th class="MuiTableCell-root MuiTableCell-head jss1824 jss1903" scope="col">
+                                                <div aria-haspopup="true">Scaffold N50</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="MuiTableBody-root">
+                                        <tr class="MuiTableRow-root jss1810" style="width: 100%;">
+                                            <td class="MuiTableCell-root MuiTableCell-body jss1825">cocoa_v2</td>
+                                            <td class="MuiTableCell-root MuiTableCell-body jss1825"><a
+                                                    href="https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-017-4120-9">Argout,
+                                                    Xavier, et al. "The cacao Criollo genome v2.0: an improved version
+                                                    of the genome for genetic and functional genomic studies." BMC
+                                                    Genomics 18.1 (2017): 730-730.</a></td>
+                                            <td class="MuiTableCell-root MuiTableCell-body jss1825">2017-09-15</td>
+                                            <td class="MuiTableCell-root MuiTableCell-body jss1825">N/A</td>
+                                            <td class="MuiTableCell-root MuiTableCell-body jss1825">6.5 Mb</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

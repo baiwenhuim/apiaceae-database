@@ -1,0 +1,44 @@
+{% extends 'basemodel.html' %}
+
+{% block title %}Apiaceae RNA-Seq Samples{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+        <h2><i class="fas fa-vial text-success me-2"></i> RNA-Seq Sample Information</h2>
+        <span class="badge bg-secondary fs-6">Total Samples: {{ data|length }}</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-success sticky-top">
+                        <tr>
+                            <th class="text-uppercase small fw-bold">Species</th>
+                            <th class="text-uppercase small fw-bold">Tissue</th>
+                            <th class="text-uppercase small fw-bold">Replicate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td class="fst-italic">{{ row.species }}</td>
+                            <td>{{ row.tissue }}</td>
+                            <td>{{ row.replicate }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">
+                                No sample data available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

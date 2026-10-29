@@ -1,0 +1,65 @@
+{% extends 'basemodel.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-primary mb-4"><i class="fas fa-search"></i> HMMER Search (via EBI)</h2>
+    
+    <div class="card shadow">
+        <div class="card-body">
+            <form action="{% url 'home:hmmer_redirect' %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Input Type:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="input_type" id="typeId" value="id" checked>
+                            <label class="form-check-label" for="typeId">Gene IDs (e.g. AG01G00100)</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="input_type" id="typeSeq" value="sequence">
+                            <label class="form-check-label" for="typeSeq">Raw FASTA Sequence</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="input_data" class="form-label">Enter Gene IDs (comma or newline separated) or Protein Sequence:</label>
+                    
+                    <!-- New: Sample + Reset Buttons -->
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="button" class="btn btn-sm btn-info" onclick="loadSample()">
+                            <i class="fas fa-file-text me-1"></i> Load Sample (Agr10G0002-RA)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="clearInput()">
+                            <i class="fas fa-trash me-1"></i> Clear Input
+                        </button>
+                    </div>
+                    
+                    <textarea class="form-control" name="input_data" id="input_data" rows="8" placeholder="Paste data here..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-rocket"></i> Submit to HMMER
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- New: JavaScript for Buttons -->
+<script>
+// Load sample gene ID into textarea
+function loadSample() {
+    const textarea = document.getElementById('input_data');
+    textarea.value = 'Agr10G0002-RA\nMESLSWLAHQRSFSSCFYFTLVF'; // Your sample ID
+    
+    // Auto-select Gene ID radio button
+    document.getElementById('typeId').checked = true;
+}
+
+// Clear textarea completely
+function clearInput() {
+    document.getElementById('input_data').value = '';
+}
+</script>
+{% endblock %}

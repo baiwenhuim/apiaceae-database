@@ -1,0 +1,323 @@
+{% extends 'basemodel.html' %}
+
+{% block title %}
+    Apiaceae species blast
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12 text-center">
+            <h2><i class="fas fa-search text-primary"></i> Local BLAST Search</h2>
+            <p class="text-muted">Align your FASTA sequences against our curated genome databases.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-cogs"></i> Search Parameters</h5>
+                </div>
+                <div class="card-body">
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger p-2">
+                            <ul class="mb-0 list-unstyled">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li><i class="fas fa-exclamation-triangle"></i> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li><i class="fas fa-exclamation-triangle"></i> {{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data" id="blastForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.program.id_for_label }}" class="form-label fw-bold">Program</label>
+                            {{ form.program }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Target Database</label>
+                            {{ form.database }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">E-value Cutoff</label>
+                            {{ form.evalue }}
+                        </div>
+
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">
+                                <i class="fas fa-paste"></i> {{ form.sequence_text.label }}
+                            </label>
+                            {{ form.sequence_text }}
+                            <small class="text-muted">Max 50 sequences.</small>
+                        </div>
+                        
+                        <div class="text-center fw-bold text-muted mb-2">- OR -</div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-success">
+                                <i class="fas fa-file-upload"></i> {{ form.sequence_file.label }}
+                            </label>
+                            {{ form.sequence_file }}
+                            <small class="text-muted">Max 5 MB file size.</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
+                                <i class="fas fa-rocket"></i> Run BLAST
+                            </button>
+                            <a href="{% url 'home:blast_tool' %}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm" style="min-height: 500px;">
+                <div class="card-body">
+                    
+                    <div id="loadingOverlay" class="text-center" style="display: none; padding-top: 150px;">
+                        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h4 class="mt-4 text-primary">Running BLAST...</h4>
+                        <p class="text-muted">Please do not refresh the page. This may take up to a few minutes depending on sequence length.</p>
+                    </div>
+
+                    <div id="resultsWrapper">
+                        {% if error_msg %}
+                            <div class="alert alert-danger mt-3">
+                                <h5><i class="fas fa-times-circle"></i> Execution Error</h5>
+                                <p class="mb-0">{{ error_msg }}</p>
+                            </div>
+                        {% elif has_run %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="mb-0"><i class="fas fa-poll"></i> Alignment Results</h4>
+                                <div>
+                                    <span class="badge bg-success fs-6 me-3">{{ results|length }} Hits Found</span>
+                                    <button class="btn btn-sm btn-outline-primary" id="btnDownloadBlast">
+                                        <i class="fas fa-download"></i> Download CSV
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {% if results %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped table-bordered text-center align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Query ID</th>
+                                                <th>Subject ID</th>
+                                                <th class="align-middle text-nowrap">
+                                                    Identity (%)
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;" title="Sort Large to Small"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;" title="Sort Small to Large"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="align-middle text-nowrap">
+                                                    Length
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="align-middle text-nowrap">
+                                                    Mismatches
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="align-middle text-nowrap">
+                                                    E-value
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="align-middle text-nowrap">
+                                                    Bitscore
+                                                    <div class="d-inline-flex flex-column align-items-center ms-1" style="font-size: 0.7em; vertical-align: middle;">
+                                                        <i class="fas fa-chevron-up sort-icon" data-dir="desc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                        <i class="fas fa-chevron-down sort-icon" data-dir="asc" style="cursor: pointer; opacity: 0.3;"></i>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in results %}
+                                            <tr>
+                                                <td class="text-truncate" style="max-width: 150px;" title="{{ row.query }}">{{ row.query }}</td>
+                                                <td class="text-truncate" style="max-width: 150px;" title="{{ row.subject }}">{{ row.subject }}</td>
+                                                <td>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span>{{ row.identity }}%</span>
+                                                        <div class="progress ms-2" style="width: 50px; height: 6px;">
+                                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                              style="width: {{ row.identity }}%;" 
+                                                              aria-valuenow="{{ row.identity }}" 
+                                                              aria-valuemin="0" 
+                                                              aria-valuemax="100">
+                                                          </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ row.length }}</td>
+                                                <td>{{ row.mismatches }}</td>
+                                                <td class="text-danger fw-bold">{{ row.evalue }}</td>
+                                                <td>{{ row.bitscore }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info mt-3 text-center">
+                                    <h5><i class="fas fa-info-circle"></i> No significant similarities found.</h5>
+                                    <p>Try increasing your E-value threshold or using a different program.</p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center text-muted" style="padding-top: 150px;">
+                                <i class="fas fa-dna fa-4x mb-3" style="opacity: 0.2;"></i>
+                                <h4>Ready for Alignment</h4>
+                                <p>Paste a sequence or upload a file on the left to begin.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+    // --- Table Sorting Logic ---
+    // We use event delegation here (binding to the document) so it works even if the table is loaded dynamically
+    $(document).on('click', '.sort-icon', function() {
+        let $icon = $(this);
+        let sortDir = $icon.data('dir'); // 'asc' (small to large) or 'desc' (large to small)
+        
+        // Find the closest table header to know which column we clicked
+        let $th = $icon.closest('th');
+        let colIndex = $th.index();
+        
+        // Find the table body and get all rows as an array
+        let $tbody = $th.closest('table').find('tbody');
+        let rows = $tbody.find('tr').toArray();
+
+        // UI Polish: Reset all arrows to faded, then highlight the one that was clicked
+        $('.sort-icon').css('opacity', '0.3').removeClass('text-primary');
+        $icon.css('opacity', '1.0').addClass('text-primary');
+
+        // Sort the array of rows
+        rows.sort(function(a, b) {
+            // Grab the text from the specific cell, remove the "%" sign if it exists, and trim spaces
+            let valA = $(a).find('td').eq(colIndex).text().replace('%', '').trim();
+            let valB = $(b).find('td').eq(colIndex).text().replace('%', '').trim();
+
+            // Convert the text into proper numbers. 
+            // parseFloat is smart enough to handle scientific notation (e.g., 4.14e-41)
+            let numA = parseFloat(valA);
+            let numB = parseFloat(valB);
+
+            // Handle exact ties
+            if (numA === numB) return 0;
+
+            if (sortDir === 'asc') {
+                return (numA > numB) ? 1 : -1; // Small to Large
+            } else {
+                return (numA < numB) ? 1 : -1; // Large to Small
+            }
+        });
+
+        // Re-append the sorted rows to the table. 
+        // (In JavaScript, appending an element that already exists simply moves it to the new position)
+        $.each(rows, function(index, row) {
+            $tbody.append(row);
+        });
+    });
+    
+    $(document).ready(function() {
+        // --- Form Submission Logic ---
+        $('#blastForm').on('submit', function() {
+            // 1. Hide the results/empty state
+            $('#resultsWrapper').fadeOut(200, function() {
+                // 2. Show the loading spinner
+                $('#loadingOverlay').fadeIn(200);
+            });
+            
+            // 3. Disable the submit button so they can't click it twice
+            $('#btnSubmit').html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            
+            // Allow the form to submit naturally to the Django backend
+            return true; 
+        });
+
+        // --- Quick UI Helper: Clear text area if user selects a file ---
+        $('#id_sequence_file').change(function() {
+            if ($(this).val()) {
+                $('#id_sequence_text').val('');
+            }
+        });
+        
+        $('#id_sequence_text').on('input', function() {
+            if ($(this).val()) {
+                $('#id_sequence_file').val('');
+            }
+        });
+
+        // --- CSV Download Logic ---
+        $('#btnDownloadBlast').on('click', function(e) {
+            e.preventDefault(); // Prevent any default button behavior
+            
+            let csv = [];
+            let rows = document.querySelectorAll("table tr");
+            
+            for (let i = 0; i < rows.length; i++) {
+                let row = [];
+                let cols = rows[i].querySelectorAll("td, th");
+                
+                for (let j = 0; j < cols.length; j++) {
+                    // Grab text, clean up line breaks, and trim
+                    let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+                    // Wrap in quotes to safely handle any commas in the data
+                    row.push('"' + text + '"');
+                }
+                csv.push(row.join(","));
+            }
+
+            // Create and trigger the CSV file download
+            let csvString = csv.join("\n");
+            let blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+            let url = URL.createObjectURL(blob);
+            
+            let link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "blast_results.csv");
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+</script>
+{% endblock %}

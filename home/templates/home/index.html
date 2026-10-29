@@ -1,0 +1,373 @@
+{% extends 'basemodel.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+Apiaceae Database
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'home/css/dashboard.css' %}">
+<style>
+    /* Hero Section (Your Design + Custom Background Image) */
+/* Hero Section (修复背景图展示不全) */
+    .hero {
+        background: linear-gradient(135deg, rgba(0, 118, 78, 0.85) 0%, rgba(0, 153, 102, 0.8) 100%),
+                    url("{% static 'home/img/introduction_background.jpg' %}");
+        background-size: cover !important;  /* 强制全屏覆盖 */
+        background-position: center center !important;  /* 居中显示 */
+        background-repeat: no-repeat !important;
+        background-attachment: scroll;  /* 滚动时保持完整 */
+        color: white;
+        padding: 120px 0;  /* 增加上下内边距 */
+        text-align: center;
+        width: 100vw !important;  /* 强制占满屏幕宽度 */
+        margin-left: calc(-50vw + 50%) !important;  /* 居中全屏 */
+    }
+
+    .hero-content {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        color: #e0f5ff;
+        margin-bottom: 32px;
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero h1 span {
+        color: #00ff88;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cd__main">
+
+    <!-- Hero Section (First Section) -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>The Multi-Omics Platform for<br><span>Apiaceae Plants</span></h1>
+            <p class="hero-subtitle">Large database, integrated, updated in providing genomics, transcriptomics, metabolomics, and bioinformatic analysis for researching medicinal plant molecular mechanisms.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'home:species' 'all' %}" class="btn btn-primary btn-lg px-4">Browse Data</a>
+                <a href="{% url 'home:userguide' %}" class="btn btn-light btn-lg px-4">Explore more</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <!-- <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <div class="content p-4 p-md-5 bg-white rounded shadow-sm">
+                        <h2 class="fw-bold text-success mb-4 text-center">Introduction</h2>
+                        <div class="text-muted" style="text-align: justify; line-height: 1.8; font-size: 1.1rem;">
+                            {{ apiaceae_intro_html|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Database Statistics -->
+    <section class="container my-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title fw-bold text-primary">
+                Database Statistics
+            </h2>
+            <p class="text-muted">Continuously updated to support global Apiaceae research.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+                            <i class="fa fa-leaf"></i>
+                        </div>
+                        <div class="stat-number">{{ species_count|intcomma }}</div>
+                        <div class="stat-label">Species</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                            <i class="fa fa-dna"></i>
+                        </div>
+                        <div class="stat-number">{{ gene_count|intcomma }}</div>
+                        <div class="stat-label">Genes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+                            <i class="fa fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-number">{{ gene_expr_count|intcomma }}</div>
+                        <div class="stat-label">Gene Expressions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+                            <i class="fa fa-flask"></i>
+                        </div>
+                        <div class="stat-number">{{ metabolite_count|intcomma }}</div>
+                        <div class="stat-label">Metabolites</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-danger bg-opacity-10 text-danger">
+                            <i class="fa fa-chart-line"></i>
+                        </div>
+                        <div class="stat-number">{{ metabolite_expr_count|intcomma }}</div>
+                        <div class="stat-label">Metabolite Expressions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card shadow-sm h-100 p-4">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-purple bg-opacity-10" style="color: #6f42c1; background-color: #f3e8fd;">
+                            <i class="fa fa-shield-virus"></i>
+                        </div>
+                        <div class="stat-number">{{ amp_count|intcomma }}</div>
+                        <div class="stat-label">Antimicrobial Peptides</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analysis Tools Section (匹配参考设计) -->
+    <section class="container-fluid py-10 my-8 bg-light-subtle">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-8">
+                <!-- 标题强制左对齐 -->
+                <div style="text-align: left !important;">
+                    <h2 class="section-title fw-bold" style="font-size: 2.5rem; color: #000; font-weight: 800; letter-spacing: -0.5px; text-align: left !important; margin: 0;">
+                        Analysis Tools
+                    </h2>
+                    <p class="text-muted" style="font-size: 1rem; color: #666; max-width: 600px; text-align: left !important; margin: 0; padding-top: 8px;">
+                        Integrated computational resources for deep data exploration.
+                    </p>
+                </div>
+                <a href="{% url 'home:blast_tool' %}" class="text-success fw-medium" style="text-decoration: none; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                    View All Updates <i class="fa fa-arrow-right" style="font-size: 0.85rem;"></i>
+                </a>
+            </div>
+
+            <!-- 工具卡片：col-lg-3 恢复一行4个 + 长窄型 -->
+            <div class="row g-5">
+                <!-- AMP Prediction -->
+                <div class="col-lg-3 col-md-6 col-sm-12"> <!-- 核心：col-lg-3 保证一行4个 -->
+                    <a href="{% url 'home:antimicrobial_peptide' %}" class="tool-card bg-white rounded-4 p-5 h-100 shadow-sm d-block text-decoration-none" style="border: none; transition: transform 0.3s ease;">
+                        <div class="tool-icon mb-4" style="width: 48px; height: 48px; border-radius: 12px; background-color: #fef2f2; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 18px; font-weight: 700; color: #dc2626;">ATCG</span>
+                        </div>
+                        <h3 class="tool-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #000;">AMP Prediction</h3>
+                        <p class="tool-desc text-muted" style="font-size: 0.95rem; color: #666; line-height: 1.6; margin-bottom: 0;">
+                            Identify antimicrobial peptides using AI models
+                        </p>
+                    </a>
+                </div>
+
+                <!-- Gene Expression Heatmap -->
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <a href="{% url 'home:expression' %}" class="tool-card bg-white rounded-4 p-5 h-100 shadow-sm d-block text-decoration-none" style="border: none; transition: transform 0.3s ease;">
+                        <div class="tool-icon mb-4" style="width: 48px; height: 48px; border-radius: 12px; background-color: #f5f3ff; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-th-large" style="font-size: 20px; color: #8b5cf6;"></i>
+                        </div>
+                        <h3 class="tool-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #000;">Gene Expression Heatmap</h3>
+                        <p class="tool-desc text-muted" style="font-size: 0.95rem; color: #666; line-height: 1.6; margin-bottom: 0;">
+                            Visualize gene expression patterns across samples
+                        </p>
+                    </a>
+                </div>
+
+                <!-- Pathway Analysis -->
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <a href="{% url 'home:enrichment_tool' %}" class="tool-card bg-white rounded-4 p-5 h-100 shadow-sm d-block text-decoration-none" style="border: none; transition: transform 0.3s ease;">
+                        <div class="tool-icon mb-4" style="width: 48px; height: 48px; border-radius: 12px; background-color: #fff7e6; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-line-chart" style="font-size: 20px; color: #f59e0b;"></i>
+                        </div>
+                        <h3 class="tool-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #000;">Pathway Analysis</h3>
+                        <p class="tool-desc text-muted" style="font-size: 0.95rem; color: #666; line-height: 1.6; margin-bottom: 0;">
+                            Explore biosynthetic pathways and gene functions
+                        </p>
+                    </a>
+                </div>
+
+                <!-- BLAST Search -->
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <a href="{% url 'home:blast_tool' %}" class="tool-card bg-white rounded-4 p-5 h-100 shadow-sm d-block text-decoration-none" style="border: none; transition: transform 0.3s ease;">
+                        <div class="tool-icon mb-4" style="width: 48px; height: 48px; border-radius: 12px; background-color: #eff6ff; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-search" style="font-size: 20px; color: #3b82f6;"></i>
+                        </div>
+                        <h3 class="tool-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #000;">BLAST Search</h3>
+                        <p class="tool-desc text-muted" style="font-size: 0.95rem; color: #666; line-height: 1.6; margin-bottom: 0;">
+                            Sequence alignment against database datasets
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="container my-5 py-5">
+        <div class="rounded-4 p-5 p-lg-5 shadow-sm position-relative" style="background-color: #F3F4F6;">
+            
+            <div class="d-none d-lg-block position-absolute" style="left: 50%; top: 10%; bottom: 10%; width: 1px; background-color: #E5E7EB; transform: translateX(-50%); z-index: 1;"></div>
+
+            <div class="row align-items-center position-relative" style="z-index: 2;">
+                <div class="col-lg-5 mb-5 mb-lg-0">
+                    <h2 class="fw-bold mb-4" style="font-size: 2.5rem; color: #111827; letter-spacing: -1px;">Updates & News</h2>
+                    <p class="text-muted mb-5" style="font-size: 1.1rem; max-width: 400px; line-height: 1.6;">
+                        Stay informed about new data releases, tool updates, and platform improvements.
+                    </p>
+                    <a href="#" class="btn btn-white border-success text-success rounded-3 px-4 py-2 fw-bold bg-white shadow-sm" style="border: 2px solid #00A669 !important;">
+                        View All Updates <i class="fa fa-chevron-right ms-2" style="font-size: 0.8rem;"></i>
+                    </a>
+                </div>
+
+                <div class="col-lg-2 d-none d-lg-flex flex-column justify-content-around align-items-center" style="min-height: 300px;">
+                    <div class="timeline-node">
+                        <div class="node-circle"><i class="fa fa-bullseye text-success"></i></div>
+                    </div>
+                    <div class="timeline-node">
+                        <div class="node-circle"><i class="fa fa-bullseye text-success"></i></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="update-list">
+                        <div class="update-item mb-5">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge rounded-pill me-3" style="background-color: #00A669; font-weight: 500; padding: 6px 16px;">Data Release</span>
+                                <span class="text-muted small">April 10, 2026</span>
+                            </div>
+                            <h4 class="fw-bold" style="color: #111827;">New Genome Assemblies Added</h4>
+                            <p class="text-muted mb-0" style="font-size: 0.95rem;">2 new Apiaceae genome assemblies, including Angelica and Bupleurum species, are now available.</p>
+                        </div>
+
+                        <div class="update-item">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge rounded-pill me-3" style="background-color: #00A669; font-weight: 500; padding: 6px 16px;">Tool Update</span>
+                                <span class="text-muted small">March 29, 2026</span>
+                            </div>
+                            <h4 class="fw-bold" style="color: #111827;">JBrowse v2.0</h4>
+                            <p class="text-muted mb-0" style="font-size: 0.95rem;">Add tool JBrowse2 for genome browser.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Quick Navigation Buttons -->
+    <!-- <section class="py-5 container">
+        <div class="buttons">
+            <button class="neumorphic active" onclick="window.location.href='{% url 'home:home' %}'">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </section> -->
+
+    <footer class="footer-section py-5 mt-5 bg-white border-top">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-6 col-md-12">
+                    <div class="footer-brand mb-4">
+                        <a href="{% url 'home:home' %}" class="text-decoration-none">
+                            <img src="{% static 'home/img/log.png' %}" alt="Logo" style="width: 250px; height: auto;">
+                        </a>
+                    </div>
+                    <div class="contact-info mt-4">
+                        <p class="mb-0 fw-bold" style="font-size: 1.1rem; color: #333;">Wenhui Bai</p>
+                        <p class="text-muted small mb-1">(Chief developer & site maintainer)</p>
+                        <a href="mailto:baiwenhui1997@gmail.com" class="text-muted text-decoration-none" style="font-size: 0.95rem;">
+                            baiwenhui1997@gmail.com
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <h6 class="fw-bold mb-3">Data Access</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="{% url 'home:species' 'all' %}">Species Browser</a></li>
+                        <li><a href="#">FTP Downloads</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Video Tutorials</a></li>
+                        <li><a href="{% url 'home:userguide' %}">Documentation</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <h6 class="fw-bold mb-3">About</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Publications & Citations</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="mt-5 mb-4 opacity-10">
+            <div class="row align-items-center footer-bottom">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-muted small mb-0">&copy; 2026 Apiaceae Database. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="bottom-links d-flex justify-content-center justify-content-md-end gap-3">
+                        <a href="#" class="text-muted small text-decoration-none">Privacy Policy</a>
+                        <span class="text-muted opacity-25">|</span>
+                        <a href="#" class="text-muted small text-decoration-none">Terms of Use</a>
+                        <span class="text-muted opacity-25">|</span>
+                        <a href="https://github.com" class="text-muted small text-decoration-none"><i class="fa-brands fa-github"></i> GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</main>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'basemodel.html' %}
+{% load static %}
+
+{% block title %}
+    {{ query_species.name_cn }} ({{ query_species.name_latin }}) - Apiaceae Database
+{% endblock %}
+
+{% block style %}
+<style>
+    .table td {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+    }
+    /* 图片容器样式优化 */
+    .species-img {
+        float: right;
+        padding: 10px 4px;
+        width: 248px;
+        margin-right: -6px;
+        text-align: center; /* lets copyright center */
+    }
+    .species-img img {
+        width: 238px;
+        height: auto;
+        border-radius: 4px;
+        display: block;
+        margin: 0 auto;
+    }
+    /* 👇 NEW: Image copyright style */
+    .image-copyright {
+        font-size: 12px;
+        color: #666;
+        margin-top: 6px;
+        font-style: italic;
+        line-height: 1.3;
+        word-wrap: break-word;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="display: block; overflow: hidden;"> <!-- 清除浮动 -->
+        <!-- 标题：中文名称 + 拉丁名 -->
+        <h3><i>{{ query_species.name_latin }}</i></h3>
+        <br>
+        
+        <!-- 物种详情表格 -->
+        <table class="table table-striped" style="width:600px;float:left">
+            <tbody>
+                <tr>
+                    <th scope="row">Latin Name</th>
+                    <td><i>{{ query_species.name_latin }}</i></td>
+                </tr>                
+                <tr>
+                    <th scope="row">Chinese Name</th>
+                    <td>{{ query_species.name_cn }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Common Name</th>
+                    <td><i>{{ query_species.name_eng }}</i></td>
+                </tr>
+                <tr>
+                    <th scope="row">Genus</th>
+                    <td>{{ query_species.genus|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Taxonomy ID</th>
+                    <td>{{ query_species.taxonomy_id }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Geographical Distribution</th>
+                    <td>{{ query_species.geographical_distribution|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Chromosome Number (2n)</th>
+                    <td>{{ query_species.chromosome_number|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Genome Size (GB)</th>
+                    <td>
+                        {% if query_species.genome_size %}
+                            {{ query_species.genome_size }} GB
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Gene Count</th>
+                    <td>{{ query_species.gene_count|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Description</th>
+                    <td>
+                        <p>{{ query_species.description|default:"No description available." }}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- 物种图片 + Copyright -->
+        <div class="species-img">
+            {% if query_species.species_pic_path %}
+                <img src="{% static query_species.species_pic_path %}" alt="{{ query_species.name_cn }}">
+            {% else %}
+                <img src="{% static 'home/img/default.png' %}" alt="Default species image">
+            {% endif %}
+
+            <!-- NEW: Copyright displayed directly under image -->
+            {% if query_species.image_copyright %}
+            <div class="image-copyright">
+                © {{ query_species.image_copyright }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
